@@ -8,6 +8,7 @@ export async function main(ns: NS) {
 
   if (!getRootAccess(server)) return
 
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     if (ns.getServerSecurityLevel(server) > ns.getServerMinSecurityLevel(server)) {
       await ns.weaken(server);
