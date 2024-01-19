@@ -33,16 +33,17 @@ async function upgradeAllToMatchNode(ns: NS, baseIndex: number) {
 }
 
 async function waitTillCash(ns: NS, target: number) {
+  ns.disableLog("sleep");
+  ns.disableLog("getServerMoneyAvailable");
   if (ns.getServerMoneyAvailable("home") < target)
     ns.print(`Waiting for cash to reach ${target}`);
   while (ns.getServerMoneyAvailable("home") < target)
     await ns.sleep(5000);
 }
 
-const breakevenTime = 3600 * 50;//Time in seconds
+const breakevenTime = 3600 * 24;//Time in seconds
 
 export async function main(ns: NS): Promise<void> {
-  // ns.disableLog("ALL");
 
   ns.tail();
 
