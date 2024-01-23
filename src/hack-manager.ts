@@ -1,5 +1,5 @@
 import { NS } from '@ns'
-import { deepexec } from 'lib/helpers'
+import { deepexec } from './lib/helpers'
 
 export async function main(ns: NS): Promise<void> {
   ns.killall();
