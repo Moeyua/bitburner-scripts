@@ -26,3 +26,14 @@ export function deepexec(ns: NS, fn: (server: string) => any) {
     fn(server);
   }
 }
+
+export function formatMoney(num: number): string {
+  const symbols = ["", "k", "m", "b", "t", "q", "Q", "s", "S", "o", "n", "e33", "e36", "e39"];
+  let i = 0;
+  while (num >= 1000 && i < symbols.length - 1) {
+    num /= 1000;
+    i++;
+  }
+  return num.toFixed(2) + symbols[i];
+}
+
