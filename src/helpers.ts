@@ -37,3 +37,30 @@ export function formatMoney(num: number): string {
   return num.toFixed(2) + symbols[i];
 }
 
+export function gainRootAccess(ns: NS, server: string) {
+  if (!ns.hasRootAccess(server)) {
+    const level = ns.getServerRequiredHackingLevel(server);
+    const port = ns.getServerNumPortsRequired(server);
+
+    if (level > ns.getHackingLevel()) return false
+    const fnStack = [ns.brutessh, ns.ftpcrack, ns.relaysmtp, ns.httpworm, ns.sqlinject];
+    try {
+      for (let i = 0; i < port; i++) {
+        fnStack[i](server);
+      }
+      ns.nuke(server);
+    } catch (error) {
+      ns.print(error);
+    }
+  }
+
+  return ns.hasRootAccess(server)
+}
+
+export function hasEnoughMoney(ns: NS, server: string) {
+  const maxMoney = ns.getServerMaxMoney(server);
+  if (maxMoney > 1000000) return true
+  ns.print('Server max money is too small to hack')
+  return false;
+
+}

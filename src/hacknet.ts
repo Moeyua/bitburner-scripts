@@ -41,7 +41,7 @@ async function waitTillCash(ns: NS, target: number) {
     await ns.sleep(5000);
 }
 
-const breakevenTime = 3600 * 50;//Time in seconds
+const breakevenTime = 3600 * 10;//Time in seconds
 
 export async function main(ns: NS): Promise<void> {
 

@@ -1,5 +1,5 @@
 import { NS } from '@ns'
-import { formatMoney } from './lib/helpers'
+import { formatMoney } from './helpers'
 
 export async function main(ns: NS) {
   ns.tail()
@@ -7,7 +7,6 @@ export async function main(ns: NS) {
 
   const symbols = ns.stock.getSymbols()
   const orders = new Set<string>(getOrders());
-  let sellProfit = 0
 
   // eslint-disable-next-line no-constant-condition
   while (true) {
@@ -16,7 +15,7 @@ export async function main(ns: NS) {
       if (forecast > 0.6 && !orders.has(symbol)) buyStock(symbol)
       else if (forecast < 0.5 && orders.has(symbol)) sellStock(symbol)
     })
-    getCurrentProfit()
+    information()
     await ns.stock.nextUpdate()
   }
 
@@ -29,46 +28,38 @@ export async function main(ns: NS) {
     return res
   }
 
-  function getCurrentProfit() {
+  function information() {
+    let holding = 0
     let profit = 0
-    const cost = 0
     orders.forEach(symbol => {
-      
-      profit += getProfit(symbol)
+      const [shares, price] = ns.stock.getPosition(symbol)
+      const cost = shares * price
+      holding += cost
+      const gain = ns.stock.getSaleGain(symbol, shares, 'Long')
+      profit += (gain - cost)
     })
-    ns.print('Current Profit:', formatMoney(profit))
-    ns.print('Sell Profit:', formatMoney(sellProfit))
-  }
-
-  function getProfit(symbol: string) {
-    const [shares, price] = ns.stock.getPosition(symbol)
-    const cost = shares * price
-    const gain = ns.stock.getSaleGain(symbol, shares, 'Long')
-    const profit = (gain - cost)
-    return profit
+    const rate = Math.round((profit / holding) * 10000) / 100 + '%'
+    ns.print(`cost: ${formatMoney(holding)}`)
+    ns.print(`profit: ${formatMoney(profit)} (${rate})`)
   }
 
   function buyStock(symbol: string) {
-    if (orders.size >= 10) {
-      ns.print('Max orders reached')
-      return
-    }
     if (ns.getServerMoneyAvailable('home') < 1000000) {
       ns.print('Not enough money')
       return
     }
-    const intendedPrice = ns.getServerMoneyAvailable('home') / 10
+    const maxShares = ns.stock.getMaxShares(symbol)
+    const budget = ns.getServerMoneyAvailable('home') / 3
     const askPrice = ns.stock.getAskPrice(symbol)
-    const shares = Math.floor(intendedPrice / askPrice)
+    let shares = Math.floor(budget / askPrice)
+    shares = Math.min(shares, maxShares)
     orders.add(symbol)
     ns.stock.buyStock(symbol, shares)
   }
 
   function sellStock(symbol: string) {
-    orders.delete(symbol)
     const shares = ns.stock.getPosition(symbol)[0]
     ns.stock.sellStock(symbol, shares)
-    const profit = getProfit(symbol)
-    sellProfit += profit
+    orders.delete(symbol)
   }
 }
