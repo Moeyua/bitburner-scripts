@@ -62,5 +62,40 @@ export function hasEnoughMoney(ns: NS, server: string) {
   if (maxMoney > 1000000) return true
   ns.print('Server max money is too small to hack')
   return false;
+}
 
+export async function killall(ns: NS) {
+  const startingNode = ns.getHostname();
+  const serverList = deepscan(ns);
+
+  // Send the kill command to all servers
+  for (const server of serverList) {
+      // skip if this host, we save it for last
+      if (server == startingNode)
+          continue;
+
+      // skip if not running anything
+      if (ns.ps(server).length === 0)
+          continue;
+
+      // kill all scripts
+      ns.killall(server);
+  }
+
+  // idle for things to die
+  for (const server of serverList) {
+      // skip if this host, we save it for last
+      if (server == startingNode)
+          continue;
+      // idle until they're dead, this is to avoid killing the cascade before it's finished.
+      while (ns.ps(server).length > 0) {
+          await ns.sleep(20);
+      }
+      // Remove script files the daemon would have copied over (in case we update the source)
+      for (const file of ns.ls(server, '.js'))
+          ns.rm(file, server)
+  }
+
+  // wait to kill these. This kills itself, obviously.
+  ns.killall(startingNode);
 }

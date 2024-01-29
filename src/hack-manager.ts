@@ -2,10 +2,9 @@ import { NS } from '@ns'
 import { deepexec, gainRootAccess, hasEnoughMoney } from './helpers'
 
 export async function main(ns: NS): Promise<void> {
-  ns.killall();
   let threads = 1
   const hostname = ns.getHostname()
-  if (hostname === 'home') threads = 10
+  if (hostname === 'home') threads = 100
   deepexec(ns, server => {
     if (!needHack(ns, server)) return
     ns.run('hack.js', threads, server);

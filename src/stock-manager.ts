@@ -8,6 +8,8 @@ export async function main(ns: NS) {
   const symbols = ns.stock.getSymbols()
   const orders = new Set<string>(getOrders());
 
+  ns.atExit(sellAllStock)
+
   // eslint-disable-next-line no-constant-condition
   while (true) {
     symbols.forEach(symbol => {
@@ -61,5 +63,13 @@ export async function main(ns: NS) {
     const shares = ns.stock.getPosition(symbol)[0]
     ns.stock.sellStock(symbol, shares)
     orders.delete(symbol)
+  }
+
+  function sellAllStock() {
+    orders.forEach(symbol => {
+      const shares = ns.stock.getPosition(symbol)[0]
+      ns.stock.sellStock(symbol, shares)
+    })
+    orders.clear()
   }
 }

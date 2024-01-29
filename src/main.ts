@@ -1,9 +1,10 @@
 import { NS } from '@ns'
-import { deepexec } from './helpers'
+import { deepexec, killall } from './helpers'
 
 export async function main(ns: NS): Promise<void> {
+  await killall(ns);
   deepexec(ns, server => {
-    const scripts = ["hack.js", "lib/helpers.js", 'hack-manager.js', 'server-crack.js'];
+    const scripts = ["hack.js", "helpers.js", 'hack-manager.js', 'server-crack.js'];
     ns.print('scp', server);
     scripts.forEach(script => {
       if(server === 'home') return
@@ -14,6 +15,7 @@ export async function main(ns: NS): Promise<void> {
   })
 
   ns.run('hacknet.js');
-  ns.run('stock.js');
+  ns.run('stock-manager.js');
+  ns.run('milestones.js');
 }
 
