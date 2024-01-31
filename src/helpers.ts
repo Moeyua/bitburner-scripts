@@ -110,6 +110,15 @@ export async function killall(ns: NS) {
   ns.killall(startingNode);
 }
 
+export async function waitTillCash(ns: NS, target: number) {
+  ns.disableLog("sleep");
+  ns.disableLog("getServerMoneyAvailable");
+  if (ns.getServerMoneyAvailable("home") < target)
+    ns.print(`Waiting for cash to reach ${target}`);
+  while (ns.getServerMoneyAvailable("home") < target)
+    await ns.sleep(5000);
+}
+
 export const SERVER_SPECIAL = [
   "home",
   "CSEC",

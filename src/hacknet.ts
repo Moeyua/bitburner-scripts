@@ -1,4 +1,5 @@
 import { NS } from '@ns'
+import { waitTillCash } from 'helpers'
 
 function gainFromLevelUpgrade(X: number, Y: number, Z: number) {
   return (1 * 1.6) * Math.pow(1.035, Y - 1) * ((Z + 5) / 6);
@@ -30,15 +31,6 @@ async function upgradeAllToMatchNode(ns: NS, baseIndex: number) {
       ns.hacknet.upgradeCore(i, baseNode.cores - currNode.cores);
     }
   }
-}
-
-async function waitTillCash(ns: NS, target: number) {
-  ns.disableLog("sleep");
-  ns.disableLog("getServerMoneyAvailable");
-  if (ns.getServerMoneyAvailable("home") < target)
-    ns.print(`Waiting for cash to reach ${target}`);
-  while (ns.getServerMoneyAvailable("home") < target)
-    await ns.sleep(5000);
 }
 
 const breakevenTime = 3600 * 20;//Time in seconds
@@ -83,7 +75,7 @@ export async function main(ns: NS): Promise<void> {
     //Try upgrading Level
     cost = ns.hacknet.getLevelUpgradeCost(weakestIndex, 1);
     gain = gainMul * gainFromLevelUpgrade(X, Y, Z);
-    ns.print("L: ", cost/gain);
+    ns.print("L: ", cost / gain);
     if ((cost / gain) <= bestBEven) {
       bestBEven = cost / gain;
       choice = "L";
@@ -92,7 +84,7 @@ export async function main(ns: NS): Promise<void> {
     //Try upgrading RAM
     cost = ns.hacknet.getRamUpgradeCost(weakestIndex, 1);
     gain = gainMul * gainFromRamUpgrade(X, Y, Z);
-    ns.print("R: ", cost/gain);
+    ns.print("R: ", cost / gain);
     if ((cost / gain) < bestBEven) {
       bestBEven = cost / gain;
       choice = "R";
@@ -101,7 +93,7 @@ export async function main(ns: NS): Promise<void> {
     //Try upgrading Cores
     cost = ns.hacknet.getCoreUpgradeCost(weakestIndex, 1);
     gain = gainMul * gainFromCoreUpgrade(X, Y, Z);
-    ns.print("C: ", cost/gain);
+    ns.print("C: ", cost / gain);
     if ((cost / gain) < bestBEven) {
       bestBEven = cost / gain;
       choice = "C";
@@ -110,7 +102,7 @@ export async function main(ns: NS): Promise<void> {
     //Try buying new Node
     cost = ns.hacknet.getPurchaseNodeCost();
     gain = weakestNode.production;
-    ns.print("N: ", cost/gain);
+    ns.print("N: ", cost / gain);
     if ((cost / gain) < bestBEven) {
       bestBEven = cost / gain;
       choice = "N";
