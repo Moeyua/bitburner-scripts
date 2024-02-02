@@ -1,5 +1,5 @@
 import { NS } from '@ns'
-import { deepexec, gainRootAccess, hasEnoughMoney, deepscan, SERVER_SPECIAL } from './helpers'
+import { deepexec, gainRootAccess, hasEnoughMoney, deepscan, SERVER_SPECIAL } from '/lib/helpers'
 
 export async function main(ns: NS): Promise<void> {
   const hostname = ns.getHostname()

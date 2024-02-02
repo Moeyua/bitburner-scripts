@@ -1,5 +1,5 @@
 import { NS } from '@ns'
-import { formatMoney, waitTillCash } from './helpers'
+import { formatMoney, waitTillCash } from '/lib/helpers'
 
 export async function main(ns: NS): Promise<void> {
   const serverLimit = ns.getPurchasedServerLimit()

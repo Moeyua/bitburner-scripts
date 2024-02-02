@@ -4,7 +4,6 @@ export async function main(ns: NS) {
   const args = ns.flags([['help', false]]) as {_: string[], help: boolean };
   const server = args._[0];
 
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     if (ns.getServerSecurityLevel(server) > ns.getServerMinSecurityLevel(server)) {
       await ns.weaken(server);

@@ -1,5 +1,5 @@
 import { NS } from '@ns'
-import { waitTillCash } from 'helpers'
+import { waitTillCash } from '/lib/helpers'
 
 function gainFromLevelUpgrade(X: number, Y: number, Z: number) {
   return (1 * 1.6) * Math.pow(1.035, Y - 1) * ((Z + 5) / 6);

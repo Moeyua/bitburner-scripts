@@ -1,7 +1,14 @@
 import { NS } from '@ns'
-import { formatMoney } from './helpers'
+import { formatMoney } from '/lib/helpers'
 
 export async function main(ns: NS) {
+  const hasStockPermission = ns.stock.has4SData() ||
+    ns.stock.has4SDataTIXAPI() ||
+    ns.stock.hasTIXAPIAccess() ||
+    ns.stock.hasWSEAccount()
+
+  if (!hasStockPermission) return
+
   ns.tail()
   ns.disableLog('getServerMoneyAvailable')
 
@@ -10,7 +17,6 @@ export async function main(ns: NS) {
 
   ns.atExit(sellAllStock)
 
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     symbols.forEach(symbol => {
       const forecast = ns.stock.getForecast(symbol)
