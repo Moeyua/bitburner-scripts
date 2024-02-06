@@ -102,8 +102,6 @@ export async function killall(ns: NS) {
 }
 
 export async function waitTillCash(ns: NS, target: number) {
-  ns.disableLog("sleep");
-  ns.disableLog("getServerMoneyAvailable");
   if (ns.getServerMoneyAvailable("home") < target)
     ns.print(`Waiting for cash to reach ${formatMoney(target)}`);
   while (ns.getServerMoneyAvailable("home") < target)
@@ -127,5 +125,4 @@ export function syncFils(ns: NS, hostname: string) {
     ns.rm(script, hostname);
   })
   ns.scp(scripts, hostname);
-  ns.toast(`Synced files to ${hostname}`)
 }

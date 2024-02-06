@@ -37,7 +37,10 @@ const breakevenTime = 3600 * 20;//Time in seconds
 
 export async function main(ns: NS): Promise<void> {
 
-  ns.tail();
+  ns.tail()
+  ns.atExit(() => ns.closeTail())
+  ns.disableLog("sleep");
+  ns.disableLog("getServerMoneyAvailable");
 
   while (ns.hacknet.numNodes() === 0) ns.hacknet.purchaseNode();
 
