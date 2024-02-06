@@ -119,3 +119,13 @@ export const SERVER_SPECIAL = [
   "run4theh111z",
   "darkweb",
 ]
+
+export function syncFils(ns: NS, hostname: string) {
+  const scripts = ns.ls('home').filter(file => file.endsWith('.js'))
+  scripts.forEach(script => {
+    if (hostname === 'home') return
+    ns.rm(script, hostname);
+  })
+  ns.scp(scripts, hostname);
+  ns.toast(`Synced files to ${hostname}`)
+}
