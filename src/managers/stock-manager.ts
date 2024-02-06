@@ -52,7 +52,7 @@ export async function main(ns: NS) {
   }
 
   function buyStock(symbol: string) {
-    if (ns.getServerMoneyAvailable('home') < 1000000) {
+    if (ns.getServerMoneyAvailable('home') < 1000000000) {
       ns.print('Not enough money')
       return
     }

@@ -1,29 +1,30 @@
 import { NS } from '@ns'
-import { deepexec, gainRootAccess, hasEnoughMoney, deepscan, SERVER_SPECIAL } from '/lib/helpers'
+import { gainRootAccess, hasEnoughMoney, deepscan } from '/lib/helpers'
 
 export async function main(ns: NS): Promise<void> {
   const hostname = ns.getHostname()
-  const threads = calcThreads(ns, hostname)
-  deepexec(ns, server => {
-    if (!needHack(ns, server)) return
-    ns.run('hack.js', threads, server);
-  })
+  let servers = deepscan(ns)
+  servers = servers.filter(hostname => needHack(ns, hostname))
+  const threads = calcThreads(ns, hostname, servers)
+  servers.forEach((hostname => {
+    ns.run('hack.js', threads, hostname);
+  }))
 }
 
 // 计算线程数
-function calcThreads(ns: NS, server: string) {
-  const serverFreeRam = ns.getServerMaxRam(server)
-  const serverNum = deepscan(ns).length - SERVER_SPECIAL.length
+function calcThreads(ns: NS, hostname: string, servers: string[]) {
+  const serverFreeRam = ns.getServerMaxRam(hostname)
+  const serverNum = servers.length
   const scriptRam = ns.getScriptRam('hack.js')
   const hackRam = scriptRam * serverNum
   const threads = Math.max(1, Math.floor(serverFreeRam / hackRam))
   return threads
 }
 
-function needHack(ns: NS, server: string) {
-  if (server === 'home') return false
-  if (!hasEnoughMoney(ns, server)) return false
-  if (!gainRootAccess(ns, server)) return false
+function needHack(ns: NS, hostname: string) {
+  if (hostname === 'home') return false
+  if (!hasEnoughMoney(ns, hostname)) return false
+  if (!gainRootAccess(ns, hostname)) return false
   return true
 }
 

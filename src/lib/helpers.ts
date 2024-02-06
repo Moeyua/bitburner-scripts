@@ -18,15 +18,6 @@ export function deepscan(ns: NS) {
   return Array.from(serverSet)
 }
 
-// 深度执行函数
-export function deepexec(ns: NS, fn: (server: string) => any) {
-  const servers = deepscan(ns);
-  for (let i = 0; i < servers.length; i++) {
-    const server = servers[i];
-    fn(server);
-  }
-}
-
 export function formatMoney(num: number): string {
   const symbols = ["", "k", "m", "b", "t", "q", "Q", "s", "S", "o", "n", "e33", "e36", "e39"];
   let i = 0;
@@ -114,7 +105,7 @@ export async function waitTillCash(ns: NS, target: number) {
   ns.disableLog("sleep");
   ns.disableLog("getServerMoneyAvailable");
   if (ns.getServerMoneyAvailable("home") < target)
-    ns.print(`Waiting for cash to reach ${target}`);
+    ns.print(`Waiting for cash to reach ${formatMoney(target)}`);
   while (ns.getServerMoneyAvailable("home") < target)
     await ns.sleep(5000);
 }

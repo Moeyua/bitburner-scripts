@@ -1,74 +1,4 @@
-const fUnsolvedContracts = '/Temp/unsolved-contracts.txt'; // A global, persistent array of contracts we couldn't solve, so we don't repeatedly log about them.
-
-//Silly human, you can't import a typescript module into a javascript 
-//import { codingContractTypesMetadata } from 'https://raw.githubusercontent.com/danielyxie/bitburner/master/src/data/codingcontracttypes.ts'
-
-// This contract solver has the bare-minimum footprint of 1.6 GB (base) + 10 GB (ns.codingcontract.attempt)
-// It does this by requiring all contract information being gathered in advance and passed in as a JSON blob argument.
-// Solvers are mostly taken from source code at https://raw.githubusercontent.com/danielyxie/bitburner/master/src/data/codingcontracttypes.ts
-/** @param {NS} ns **/
-export async function main(ns) {
-    if (ns.args.length < 1)
-        ns.tprint('Contractor solver was incorrectly invoked without arguments.')
-    let contractsDb = JSON.parse(ns.args[0]);
-    const fContents = ns.read(fUnsolvedContracts);
-    const notified = fContents ? JSON.parse(fContents) : [];
-    for (const contractInfo of contractsDb) {
-        const answer = findAnswer(contractInfo)
-        let notice = null;
-        if (answer != null) {
-            let solvingResult = false;
-            try {
-                solvingResult = ns.codingcontract.attempt(answer, contractInfo.contract, contractInfo.hostname, { returnReward: true })
-                if (solvingResult) {
-                    const message = `Solved ${contractInfo.contract} on ${contractInfo.hostname} (${contractInfo.type}). Reward: ${solvingResult}`;
-                    ns.toast(message, 'success');
-                    ns.tprint(message);
-                } else {
-                    notice = `ERROR: Wrong answer for contract type "${contractInfo.type}" (${contractInfo.contract} on ${contractInfo.hostname}):` +
-                        `\nIncorrect Answer Given: ${JSON.stringify(answer)}`;
-                }
-            } catch (err) {
-                let errorMessage = typeof err === 'string' ? err : err.message || JSON.stringify(err);
-                if (err?.stack) errorMessage += '\n' + err.stack;
-                notice = `ERROR: Attemt to solve contract raised an error. (Answer Given: ${JSON.stringify(answer)})` +
-                    `\nWhile unlikely, this could happen if the contract vanished before we had a chance to solve it:\n"${errorMessage}"`;
-            }
-        } else {
-            notice = `WARNING: No solver available for contract type "${contractInfo.type}"`;
-        }
-        if (notice) {
-            if (!notified.includes(contractInfo.contract)) {
-                ns.tprint(notice + `\nContract Info: ${JSON.stringify(contractInfo)}`)
-                ns.toast(notice, 'warning');
-                notified.push(contractInfo.contract)
-            }
-            ns.print(notice + `\nContract Info: ${JSON.stringify(contractInfo)}`);
-        }
-        await ns.sleep(10)
-    }
-    // Keep tabs of failed contracts
-    if (notified.length > 0)
-        await ns.write(fUnsolvedContracts, JSON.stringify(notified), "w");
-}
-
-function findAnswer(contract) {
-    const codingContractSolution = codingContractTypesMetadata.find((codingContractTypeMetadata) => codingContractTypeMetadata.name === contract.type)
-    return codingContractSolution ? codingContractSolution.solver(contract.data) : null;
-}
-
-function convert2DArrayToString(arr) {
-    const components = []
-    arr.forEach(function (e) {
-        let s = e.toString()
-        s = ['[', s, ']'].join('')
-        components.push(s)
-    })
-    return components.join(',').replace(/\s/g, '')
-}
-
-// Based on https://github.com/danielyxie/bitburner/blob/master/src/data/codingcontracttypes.ts
-const codingContractTypesMetadata = [{
+export default [{
     name: 'Find Largest Prime Factor',
     solver: function (data) {
         let fac = 2
@@ -213,6 +143,15 @@ const codingContractTypesMetadata = [{
 {
     name: 'Merge Overlapping Intervals',
     solver: function (data) {
+        function convert2DArrayToString(arr) {
+            const components = []
+            arr.forEach(function (e) {
+                let s = e.toString()
+                s = ['[', s, ']'].join('')
+                components.push(s)
+            })
+            return components.join(',').replace(/\s/g, '')
+        }
         const intervals = data.slice()
         intervals.sort(function (a, b) {
             return a[0] - b[0]

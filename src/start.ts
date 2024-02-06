@@ -9,6 +9,7 @@ export async function main(ns: NS): Promise<void> {
     ns.exec('/managers/hack-manager.js', host);
   })
 
+  ns.run('/managers/contractor-manager.js')
   ns.run('/managers/hacknet-manager.js');
   ns.run('/managers/stock-manager.js');
 }
